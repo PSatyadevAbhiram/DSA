@@ -34,6 +34,16 @@ void addElementAtStart(Node *head, int data){
     head->next = newNode;
 }
 
+void DeleteElementAtPositionX(Node* head, int pos){
+    Node *temp = head;
+    Node *tr = head;
+    for(int i = 0; i < pos; i++){
+        tr = temp;
+        temp = temp->next;
+    }
+    tr->next = temp->next;
+}
+
 void printLinkedList(Node* head){
     Node *temp = head;
     while(temp!=NULL){
@@ -41,6 +51,19 @@ void printLinkedList(Node* head){
         temp = temp->next;
     }
     cout<<endl;
+}
+
+bool detectCycle(Node* head){
+    Node* slow = head;
+    Node* fast = head;
+    while(fast != NULL && fast->next != NULL){
+        slow = slow->next;
+        fast = fast->next->next;
+        if(slow == fast){
+            return true;
+        }
+    }
+    return false;
 }
 
 int main(){
@@ -64,4 +87,12 @@ int main(){
         addElementAtStart(reverseHead, v[i]);
     } 
     printLinkedList(reverseHead);
+    int pos;
+    cout<<"Enter the position of the element to be deleted: ";
+    cin>>pos;
+    DeleteElementAtPositionX(head, pos);
+    printLinkedList(head);
+    cout<<"Detecting if there is a cycle in this LinkedList.....";
+    cout<<endl;
+    detectCycle(head) ? cout<<"Cycle detected\n" : cout<<"No cycle detected\n";
 }
