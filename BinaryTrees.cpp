@@ -145,10 +145,60 @@ class treeAlgos{
         return isBSTSymmetrical_helper(root->left, root->right);
     }
 
+    bool pathSum(treeNode* root, int target){
+        if(!root){
+            return false;
+        }
+        if(!root->left && !root->right){
+            return root->data == target;
+        }
+        return pathSum(root->left, target-root->data)
+            || pathSum(root->right, target-root->data);
+    }  
+
+    void invertBST(treeNode* root){
+        if(!root) return;
+
+        treeNode* temp = root->left;
+        root->left = root->right;
+        root->right = temp;
+
+        invertBST(root->left);
+        invertBST(root->right); 
+    }
+
+    treeNode* lowestCommonAncestor(treeNode* root, treeNode* p, treeNode* q){
+        if(!root){
+            return nullptr;
+        }
+        while(root){
+            if(root->data > p->data && root->data > q->data){
+                root = root->left;
+            }
+            else if(root->data < p->data && root->data < q->data){
+                root = root->right;
+            }
+            else{
+                break;
+            }
+        }
+        return root;
+    }
+
 };
 
 int main(){
     treeAlgos obj;
-    treeNode* root = obj.createTree();
-    cout<<obj.isBSTSymmetrical(root)<<endl;
+    treeNode* root = new treeNode(1);
+    root->left = new treeNode(2);
+    root->right = new treeNode(3);
+    root->left->left = new treeNode(4);
+    root->left->right = new treeNode(5);
+    root->right->left = new treeNode(6);
+    root->right->right = new treeNode(7);
+
+    treeNode* p = root->left;
+    treeNode* q = root->right;
+    treeNode* lca = obj.lowestCommonAncestor(root, p, q);
+    cout<< lca->data;
 }
