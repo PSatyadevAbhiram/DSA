@@ -78,20 +78,6 @@ class treeAlgos{
         }
     }
 
-    bool isValidBST_helper(treeNode* root, int min, int max){
-        if(!root){
-            return true;
-        }
-        if(root->data < min || root->data > max){
-            return false;
-        }
-        return isValidBST_helper(root->left, min, root->data) && isValidBST_helper(root->right, root->data, max);
-    }
-
-    bool isValidBST(treeNode* root){
-        return isValidBST_helper(root, INT_MIN, INT_MAX);
-    }
-
     void levelOrderTraversal(treeNode* root){
         vector<vector<int>> res;
         if(!root){
@@ -112,13 +98,58 @@ class treeAlgos{
             }
             res.push_back(level);
         }
+        print2dVector(res);
+    }
 
+    void print2dVector(vector<vector<int>> res){
         for(int i=0;i<res.size();i++){
             for(int j=0;j<res[i].size();j++){
                 cout<<res[i][j]<<" ";
             }
             cout<<endl;
         }
+    }
+
+    void zigzag(treeNode* root){
+        vector<vector<int>> res;
+        if(!root){
+            return;
+        }
+        bool left2right = true;
+        queue<treeNode*> q;
+        q.push(root);
+        while(!q.empty()){
+            int qs = q.size();
+            vector<int> level(qs);
+            for(int i=0;i<qs;i++){
+                treeNode* temp = q.front();
+                q.pop();
+                
+                int ind = left2right ? i : qs-i-1;
+
+                level[ind] = temp->data;
+
+                if(temp->left) q.push(temp->left);
+                if(temp->right) q.push(temp->right);
+            }
+            res.push_back(level);
+            left2right = !left2right;
+        }
+        print2dVector(res);
+    }
+
+    bool isValidBST_helper(treeNode* root, int min, int max){
+        if(!root){
+            return true;
+        }
+        if(root->data < min || root->data > max){
+            return false;
+        }
+        return isValidBST_helper(root->left, min, root->data) && isValidBST_helper(root->right, root->data, max);
+    }
+
+    bool isValidBST(treeNode* root){
+        return isValidBST_helper(root, INT_MIN, INT_MAX);
     }
 
     int maxDepthBinaryTree(treeNode* root){
@@ -185,6 +216,67 @@ class treeAlgos{
         return root;
     }
 
+    bool isBalanced(treeNode* root){
+        if(!root){
+            return true;
+        }
+        bool isLeftSubtreeBalanced = isBalanced(root->left);
+        bool isRightSubtreeBalanced = isBalanced(root->right);
+        int leftHeight = maxDepthBinaryTree(root->left);
+        int rightHeight = maxDepthBinaryTree(root->right);
+        return isLeftSubtreeBalanced && isRightSubtreeBalanced && abs(leftHeight-rightHeight)<=1;
+    }
+
+    int maxSum_helper(treeNode* root, int maxSum){
+        if(!root){
+            return 0;
+        }
+
+        //Recursively check left & right subtree
+        int leftMaxSum = max(0, maxSum_helper(root->left, maxSum));
+        int rightMaxSum = max(0, maxSum_helper(root->right, maxSum));
+
+        //Update max path sum so far
+        maxSum = max(maxSum, leftMaxSum + rightMaxSum + root->data);
+
+        //Return max path sum from the CURRENT subtree
+        return max(leftMaxSum,rightMaxSum) + root->data;
+    }
+
+    int maxPathSum(treeNode* root){
+        int maxSum = INT_MIN;
+        int res = maxSum_helper(root, maxSum);
+        return res;
+    }
+
+    int countCompleteNodes(treeNode* root) {
+        if (!root) {
+            return 0;
+        }
+        int leftHeight = getHeight(root->left);
+        int rightHeight = getHeight(root->right);
+
+        if (leftHeight == rightHeight) {
+            // If left and right subtrees have the same height, the left subtree is a complete tree.
+            // Count the nodes in the left subtree (2^leftHeight - 1) plus the root node.
+            return (1 << leftHeight) + countCompleteNodes(root->right);
+        } else {
+            // If left and right subtrees have different heights, the right subtree is a complete tree,
+            // and the left subtree is one level less than complete.
+            // Count the nodes in the right subtree (2^rightHeight - 1) plus the root node.
+            return (1 << rightHeight) + countCompleteNodes(root->left);
+        }
+    }
+
+    int getHeight(treeNode* root) {
+        int height = 0;
+        while (root) {
+            root = root->left;
+            height++;
+        }
+        return height;
+    }
+
 };
 
 int main(){
@@ -196,9 +288,5 @@ int main(){
     root->left->right = new treeNode(5);
     root->right->left = new treeNode(6);
     root->right->right = new treeNode(7);
-
-    treeNode* p = root->left;
-    treeNode* q = root->right;
-    treeNode* lca = obj.lowestCommonAncestor(root, p, q);
-    cout<< lca->data;
+    cout<<obj.countCompleteNodes(root)<<endl;
 }
